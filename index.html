@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storigami - Origami Macera Oyunu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366F1',
+                        secondary: '#EC4899',
+                        accent: '#10B981',
+                        warning: '#F59E0B',
+                        surface: '#F8FAFC',
+                        'surface-dark': '#E2E8F0'
+                    },
+                    fontFamily: {
+                        'display': ['Inter', 'system-ui', 'sans-serif'],
+                        'body': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .smooth-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-2px);
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .gradient-primary {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+        }
+        
+        .gradient-secondary {
+            background: linear-gradient(135deg, #EC4899 0%, #F97316 100%);
+        }
+        
+        .gradient-accent {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .icon-bounce {
+            animation: iconBounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes iconBounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+            60% { transform: translateY(-4px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in-right {
+            animation: slideInRight 0.5s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .card-modern {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        .card-modern:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 24px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(249, 115, 22, 0.5);
+            background: linear-gradient(135deg, #EA580C 0%, #DC2626 100%);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 5px 15px rgba(249, 115, 22, 0.3);
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-primary:active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 24px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 10;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
+            background: linear-gradient(135deg, #EA580C 0%, #DC2626 100%);
+        }
+        
+        .floating-voice {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 50;
+        }
+        
+        .pulse-ring {
+            animation: pulseRing 2s infinite;
+        }
+        
+        @keyframes pulseRing {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        .speaking {
+            animation: speaking 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes speaking {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        
+        .mobile-container {
+            width: 100%;
+            max-width: 428px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+        
+        @media (max-width: 480px) {
+            .mobile-container {
+                max-width: 100%;
+                padding: 0;
+            }
+            
+            .card-modern {
+                margin: 0 8px;
+                border-radius: 16px;
+            }
+            
+            .btn-primary, .btn-secondary {
+                padding: 14px 20px;
+                font-size: 15px;
+                border-radius: 12px;
+            }
+            
+            .age-btn {
+                padding: 12px 8px !important;
+                font-size: 14px;
+            }
+        }
+        
+        /* Dokunmatik cihazlar için */
+        @media (hover: none) and (pointer: coarse) {
+            .hover-lift:hover {
+                transform: none;
+            }
+            
+            .hover-lift:active {
+                transform: translateY(-2px);
+            }
+            
+            .btn-primary:active, .btn-secondary:active {
+                transform: translateY(-1px);
+            }
+            
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .age-btn {
+                min-height: 48px;
+                padding: 14px 12px !important;
+            }
+        }
+        
+        /* Tüm butonlar için temel dokunmatik destek */
+        button {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            position: relative;
+            z-index: 1;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .adventure-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .adventure-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10B981, #059669);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .level-badge {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .xp-counter {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="mobile-container">
+        <!-- Karşılama Ekranı -->
+        <div id="welcomeScreen" class="adventure-bg min-h-screen flex flex-col items-center justify-center p-6 text-white">
+            <div class="text-center mb-12">
+                <div class="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center mb-8 mx-auto backdrop-blur-sm">
+                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-bold mb-4">Storigami</h1>
+                <p class="text-xl opacity-90 mb-8">Origami Macera Dünyası</p>
+                <div class="space-y-4">
+                    <button onclick="showLoginOptions()" class="w-full btn-primary text-lg py-4">
+                        Maceraya Başla!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Giriş Seçenekleri -->
+        <div id="loginOptions" class="hidden adventure-bg min-h-screen flex flex-col items-center justify-center p-6 text-white">
+            <div class="w-full max-w-sm">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Kim Oynuyor?</h2>
+                    <p class="text-lg opacity-90">Rolünü seç ve başla!</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <button onclick="showChildLogin()" class="w-full card-modern p-6 text-gray-900 hover-lift smooth-transition z-10 touch-action-manipulation">
+                        <div class="flex items-center pointer-events-none">
+                            <div class="w-16 h-16 gradient-secondary rounded-2xl flex items-center justify-center mr-4">
+                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-xl font-bold">Çocuk Oyuncu</h3>
+                                <p class="text-gray-600">Maceraya çık ve öğren!</p>
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <button onclick="showEducatorLogin()" class="w-full card-modern p-6 text-gray-900 hover-lift smooth-transition z-10 touch-action-manipulation">
+                        <div class="flex items-center pointer-events-none">
+                            <div class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mr-4">
+                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-xl font-bold">Eğitmen</h3>
+                                <p class="text-gray-600">Öğrencileri yönet</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="goToWelcome()" class="text-white/70 hover:text-white smooth-transition">
+                        ← Geri Dön
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Çocuk Giriş Formu -->
+        <div id="childLogin" class="hidden adventure-bg min-h-screen flex flex-col items-center justify-center p-6 text-white">
+            <div class="w-full max-w-sm">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-6 mx-auto">
+                        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-2">Merhaba Kahraman!</h2>
+                    <p class="text-lg opacity-90">Seni tanıyalım</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Adın ne?</label>
+                        <input type="text" id="childName" placeholder="Adını yaz..." 
+                               class="w-full px-4 py-3 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Kaç yaşındasın?</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="selectChildAge('4-6', this)" class="age-btn py-3 px-4 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 smooth-transition z-10 touch-action-manipulation">
+                                4-6
+                            </button>
+                            <button onclick="selectChildAge('7-9', this)" class="age-btn py-3 px-4 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 smooth-transition z-10 touch-action-manipulation">
+                                7-9
+                            </button>
+                            <button onclick="selectChildAge('10-12', this)" class="age-btn py-3 px-4 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 smooth-transition z-10 touch-action-manipulation">
+                                10-12
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button id="startAdventureBtn" onclick="return startChildAdventure();" disabled 
+                            class="w-full py-4 rounded-2xl bg-white/30 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed enabled:hover:bg-white/40 enabled:cursor-pointer smooth-transition btn-primary">
+                        Maceraya Başla! 🚀
+                    </button>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="goBackToLoginOptions()" class="text-white/70 hover:text-white smooth-transition">
+                        ← Geri Dön
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Eğitmen Giriş Formu -->
+        <div id="educatorLogin" class="hidden adventure-bg min-h-screen flex flex-col items-center justify-center p-6 text-white">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-6 mx-auto">
+                        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-2">Eğitmen Girişi</h2>
+                    <p class="text-lg opacity-90">Öğrenci yönetim ve takip sistemi</p>
+                </div>
+                
+                <div class="card-modern p-6 bg-white/10 backdrop-blur-sm border-white/20 mb-6">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-white">E-posta Adresi</label>
+                            <input type="email" id="educatorEmail" placeholder="ornek@okul.edu.tr" 
+                                   class="w-full px-4 py-3 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-white">Şifre</label>
+                            <div class="relative">
+                                <input type="password" id="educatorPassword" placeholder="Şifrenizi girin..." 
+                                       class="w-full px-4 py-3 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50">
+                                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white">
+                                    <svg id="eyeIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-white">Okul/Kurum</label>
+                            <select id="educatorSchool" class="w-full px-4 py-3 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50">
+                                <option value="" class="text-gray-900">Okulunuzu seçin...</option>
+                                <option value="demo" class="text-gray-900">Demo Okulu</option>
+                                <option value="ilkokul1" class="text-gray-900">Atatürk İlkokulu</option>
+                                <option value="ilkokul2" class="text-gray-900">Cumhuriyet İlkokulu</option>
+                                <option value="ortaokul1" class="text-gray-900">Fatih Ortaokulu</option>
+                                <option value="other" class="text-gray-900">Diğer...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="rememberMe" class="w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-white/50">
+                            <label for="rememberMe" class="ml-2 text-sm text-white/90">Beni hatırla</label>
+                        </div>
+                        
+                        <button onclick="educatorLogin()" id="educatorLoginBtn" class="w-full py-4 rounded-2xl btn-primary font-semibold text-lg">
+                            <span class="flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M10,17V14H3V10H10V7L15,12L10,17M10,2H19A2,2 0 0,1 21,4V20A2,2 0 0,1 19,22H10A2,2 0 0,1 8,20V18H10V20H19V4H10V6H8V4A2,2 0 0,1 10,2Z"/>
+                                </svg>
+                                Giriş Yap
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Demo Bilgileri -->
+                <div class="card-modern p-4 bg-blue-500/20 backdrop-blur-sm border-blue-300/30 mb-6">
+                    <h4 class="font-bold text-white mb-2">🎯 Demo Hesabı</h4>
+                    <div class="text-sm text-white/90 space-y-1">
+                        <p><strong>E-posta:</strong> demo@storigami.com</p>
+                        <p><strong>Şifre:</strong> demo123</p>
+                        <p><strong>Okul:</strong> Demo Okulu</p>
+                    </div>
+                </div>
+                
+                <!-- Yardım Linkleri -->
+                <div class="text-center space-y-3">
+                    <button onclick="showForgotPassword()" class="text-white/70 hover:text-white smooth-transition text-sm">
+                        Şifremi Unuttum
+                    </button>
+                    <div class="text-white/50 text-xs">•</div>
+                    <button onclick="showRegisterForm()" class="text-white/70 hover:text-white smooth-transition text-sm">
+                        Yeni Hesap Oluştur
+                    </button>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="goBackToLoginOptions()" class="text-white/70 hover:text-white smooth-transition flex items-center justify-center mx-auto">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+                        </svg>
+                        Geri Dön
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Origami Tanıtım Ekranı -->
+        <div id="origamiIntro" class="hidden min-h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-600">
+            <div class="p-6 text-white">
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mb-6 mx-auto backdrop-blur-sm">
+                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12,2L13.09,8.26L22,9L14.5,14.74L17.18,22L12,18.27L6.82,22L9.5,14.74L2,9L10.91,8.26L12,2Z"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold mb-4">Origami Nedir?</h1>
+                    <p class="text-lg opacity-90">Kağıt katlama sanatını keşfet!</p>
+                </div>
+
+                <div class="space-y-6 max-w-2xl mx-auto">
+                    <div class="card-modern p-6 bg-white/10 backdrop-blur-sm border-white/20">
+                        <h3 class="text-xl font-bold mb-3 text-white">🎌 Origami Tarihi</h3>
+                        <div id="origamiHistory" class="text-white/90">
+                            <!-- Yaş grubuna göre içerik buraya gelecek -->
+                        </div>
+                    </div>
+
+                    <div class="card-modern p-6 bg-white/10 backdrop-blur-sm border-white/20">
+                        <h3 class="text-xl font-bold mb-3 text-white">🧠 Origami Faydaları</h3>
+                        <div id="origamiBenefits" class="text-white/90">
+                            <!-- Yaş grubuna göre içerik buraya gelecek -->
+                        </div>
+                    </div>
+
+                    <div class="card-modern p-6 bg-white/10 backdrop-blur-sm border-white/20">
+                        <h3 class="text-xl font-bold mb-3 text-white">✨ Temel Kurallar</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm text-white/90">
+                            <div class="flex items-center">
+                                <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
+                                Sadece katlama
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
+                                Kesme yok
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
+                                Yapıştırma yok
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
+                                Sabır ve dikkat
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="showStorigamiIntro()" class="btn-primary text-lg py-4 px-8">
+                        Storigami'yi Keşfet! 🚀
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storigami Tanıtım Ekranı -->
+        <div id="storigamiIntro" class="hidden min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
+            <div class="p-6 text-white">
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mb-6 mx-auto backdrop-blur-sm">
+                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,6V14L18,10.5L11,6Z"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold mb-4">Storigami Nedir?</h1>
+                    <p class="text-lg opacity-90">Hikaye + Origami = Macera!</p>
+                </div>
+
+                <div class="space-y-6 max-w-2xl mx-auto">
+                    <div class="card-modern p-6 bg-white/10 backdrop-blur-sm border-white/20">
+                        <h3 class="text-xl font-bold mb-3 text-white">🎯 Storigami Misyonu</h3>
+                        <p class="text-white/90">
+                            Storigami, origami sanatını hikayelerle birleştirerek çocukların yaratıcılığını, el becerilerini ve hayal gücünü geliştiren eğitici bir macera oyunudur. Her katlama bir hikaye, her hikaye yeni bir öğrenme!
+                        </p>
+                    </div>
+
+                    <div class="card-modern p-6 bg-white/10 backdrop-blur-sm border-white/20">
+                        <h3 class="text-xl font-bold mb-3 text-white">🏆 Kazanımlar</h3>
+                        <div class="grid grid-cols-1 gap-3 text-sm text-white/90">
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-3 text-xs">✓</span>
+                                El-göz koordinasyonu gelişimi
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3 text-xs">✓</span>
+                                Matematik ve geometri anlayışı
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center mr-3 text-xs">✓</span>
+                                Yaratıcı düşünce ve hayal gücü
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center mr-3 text-xs">✓</span>
+                                Sabır ve odaklanma becerisi
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center mr-3 text-xs">✓</span>
+                                Hikaye anlatma ve dil gelişimi
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-modern p-6 bg-white/10 backdrop-blur-sm border-white/20">
+                        <h3 class="text-xl font-bold mb-3 text-white">🌟 Nasıl Çalışır?</h3>
+                        <div class="space-y-3 text-white/90">
+                            <div class="flex items-start">
+                                <span class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center mr-3 text-xs font-bold">1</span>
+                                <span>Macera seç ve hikayeye dal</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center mr-3 text-xs font-bold">2</span>
+                                <span>Adım adım origami öğren</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center mr-3 text-xs font-bold">3</span>
+                                <span>Kendi hikayeni oluştur</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center mr-3 text-xs font-bold">4</span>
+                                <span>XP kazan ve seviye atla!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="showGameScreen()" class="btn-primary text-lg py-4 px-8">
+                        Maceraya Başla! 🎮
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ana Oyun Ekranı -->
+        <div id="gameScreen" class="hidden min-h-screen bg-surface">
+            <!-- Oyun Header'ı -->
+            <div class="bg-white shadow-sm p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
+                            <span class="text-white font-bold text-sm" id="playerInitial">K</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900" id="playerName">Kahraman</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="level-badge" id="playerLevel">Seviye 1</span>
+                                <span class="xp-counter" id="playerXP">0 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="showSettings()" class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11.03L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11.03C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- İlerleme Çubuğu -->
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                        <span>Macera İlerlemesi</span>
+                        <span id="progressText">0/10</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Macera Haritası -->
+            <div class="p-4">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Origami Krallığı</h2>
+                    <p class="text-gray-600">Hangi maceraya çıkmak istiyorsun?</p>
+                </div>
+
+                <!-- Macera Kartları -->
+                <div class="space-y-4">
+                    <!-- Kağıt Ormanı -->
+                    <div class="card-modern p-6 hover-lift smooth-transition" onclick="startAdventure('forest')">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 gradient-accent rounded-2xl flex items-center justify-center mr-4">
+                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-900">Kağıt Ormanı</h3>
+                                <p class="text-gray-600 text-sm">Origami hayvanlarıyla tanış</p>
+                                <div class="flex items-center mt-2">
+                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Kolay</span>
+                                    <span class="text-xs text-gray-500 ml-2">+50 XP</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <span class="text-gray-600">→</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hikaye Kalesi -->
+                    <div class="card-modern p-6 hover-lift smooth-transition" onclick="startAdventure('castle')">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 gradient-secondary rounded-2xl flex items-center justify-center mr-4">
+                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M11,13.5V21.5H3V13.5H11M12,2L17.5,11H6.5L12,2M17.5,13A4.5,4.5 0 0,1 22,17.5A4.5,4.5 0 0,1 17.5,22A4.5,4.5 0 0,1 13,17.5A4.5,4.5 0 0,1 17.5,13Z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-900">Hikaye Kalesi</h3>
+                                <p class="text-gray-600 text-sm">AI ile hikaye oluştur</p>
+                                <div class="flex items-center mt-2">
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Orta</span>
+                                    <span class="text-xs text-gray-500 ml-2">+100 XP</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <span class="text-gray-600">→</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yaratıcılık Adası -->
+                    <div class="card-modern p-6 hover-lift smooth-transition" onclick="startAdventure('island')">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mr-4">
+                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-900">Yaratıcılık Adası</h3>
+                                <p class="text-gray-600 text-sm">Oyunlar ve aktiviteler</p>
+                                <div class="flex items-center mt-2">
+                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Zor</span>
+                                    <span class="text-xs text-gray-500 ml-2">+150 XP</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <span class="text-gray-600">→</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Günlük Görevler -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Günlük Görevler</h3>
+                    <div class="space-y-3">
+                        <div class="card-modern p-4 flex items-center justify-between" id="dailyTask1">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">İlk origami yap</p>
+                                    <p class="text-sm text-gray-500">+25 XP</p>
+                                </div>
+                            </div>
+                            <button onclick="completeTask('dailyTask1', 25)" class="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full hover:bg-green-200 transition-colors">Tamamla</button>
+                        </div>
+                        
+                        <div class="card-modern p-4 flex items-center justify-between" id="dailyTask2">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Bir hikaye oluştur</p>
+                                    <p class="text-sm text-gray-500">+50 XP</p>
+                                </div>
+                            </div>
+                            <button onclick="completeTask('dailyTask2', 50)" class="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full hover:bg-green-200 transition-colors">Tamamla</button>
+                        </div>
+                        
+                        <div class="card-modern p-4 flex items-center justify-between" id="dailyTask3">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M9,11H15L13,9L15,7H9V11M7,9V7A2,2 0 0,1 9,5H15A2,2 0 0,1 17,7V9A2,2 0 0,1 15,11H9A2,2 0 0,1 7,9M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Yaratıcılık adasını ziyaret et</p>
+                                    <p class="text-sm text-gray-500">+30 XP</p>
+                                </div>
+                            </div>
+                            <button onclick="completeTask('dailyTask3', 30)" class="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full hover:bg-green-200 transition-colors">Tamamla</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kağıt Ormanı Macerası -->
+        <div id="forestAdventure" class="hidden min-h-screen bg-gradient-to-br from-green-400 to-emerald-600">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-6">
+                    <button onclick="backToGame()" class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-bold text-white">Kağıt Ormanı</h2>
+                    <div class="w-10 h-10"></div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="card-modern p-6">
+                        <h3 class="text-lg font-bold mb-3">🦋 Kelebek Yapımı</h3>
+                        <p class="text-gray-600 mb-4">Renkli bir kelebek yapalım ve hikayesini dinleyelim!</p>
+                        <button onclick="startOrigamiTutorial('butterfly')" class="btn-secondary w-full">
+                            Başla
+                        </button>
+                    </div>
+
+                    <div class="card-modern p-6">
+                        <h3 class="text-lg font-bold mb-3">🐸 Zıplayan Kurbağa</h3>
+                        <p class="text-gray-600 mb-4">Gerçekten zıplayan bir kurbağa yapalım!</p>
+                        <button onclick="startOrigamiTutorial('frog')" class="btn-secondary w-full">
+                            Başla
+                        </button>
+                    </div>
+
+                    <div class="card-modern p-6">
+                        <h3 class="text-lg font-bold mb-3">🐦 Barış Güvercini</h3>
+                        <p class="text-gray-600 mb-4">Barışın sembolü güvercin yapalım!</p>
+                        <button onclick="startOrigamiTutorial('dove')" class="btn-secondary w-full">
+                            Başla
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hikaye Kalesi Macerası -->
+        <div id="castleAdventure" class="hidden min-h-screen bg-gradient-to-br from-purple-500 to-pink-600">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-6">
+                    <button onclick="backToGame()" class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-bold text-white">Hikaye Kalesi</h2>
+                    <div class="w-10 h-10"></div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="card-modern p-6">
+                        <h3 class="text-lg font-bold mb-3">📚 Hikaye Oluşturucu</h3>
+                        <p class="text-gray-600 mb-4">AI ile birlikte origami karakterinle hikaye yaz!</p>
+                        <button onclick="startStoryCreator()" class="btn-secondary w-full">
+                            Hikaye Yaz
+                        </button>
+                    </div>
+
+                    <div class="card-modern p-6">
+                        <h3 class="text-lg font-bold mb-3">🎭 Karakter Galerisi</h3>
+                        <p class="text-gray-600 mb-4">Yaptığın origamileri karaktere dönüştür!</p>
+                        <button onclick="showCharacterGallery()" class="btn-secondary w-full">
+                            Galeriyi Aç
+                        </button>
+                    </div>
+
+                    <div class="card-modern p-6">
+                        <h3 class="text-lg font-bold mb-3">🎪 Hikaye Tiyatrosu</h3>
+                        <p class="text-gray-600 mb-4">Karakterlerinle mini tiyatro oyunu oyna!</p>
+                        <button onclick="startTheater()" class="btn-secondary w-full">
+                            Tiyatro Başlat
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yaratıcılık Adası Macerası -->
+        <div id="islandAdventure" class="hidden min-h-screen bg-gradient-to-br from-orange-400 to-red-500">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-6">
+                    <button onclick="backToGame()" class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-bold text-white">Yaratıcılık Adası</h2>
+                    <div class="w-10 h-10"></div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="card-modern p-6">
+                        <h3 class="text-lg font-bold mb-3">🎨 Renk Atölyesi</h3>
+                        <p class="text-gray-600 mb-4">Origamilerini boyayıp süsle!</p>
+                        <button onclick="startColorWorkshop()" class="btn-secondary w-full">
+                            Atölyeye Git
+                        </button>
+                    </div>
+
+                    <div class="card-modern p-6">
+                        <h3 class="text-lg font-bold mb-3">🧩 Origami Bulmacası</h3>
+                        <p class="text-gray-600 mb-4">Parçaları birleştirip origami tamamla!</p>
+                        <button onclick="startOrigamiPuzzle()" class="btn-secondary w-full">
+                            Bulmaca Çöz
+                        </button>
+                    </div>
+
+                    <div class="card-modern p-6">
+                        <h3 class="text-lg font-bold mb-3">🏆 Yaratıcılık Yarışması</h3>
+                        <p class="text-gray-600 mb-4">Kendi origami tasarımını oluştur!</p>
+                        <button onclick="startCreativityContest()" class="btn-secondary w-full">
+                            Yarışmaya Katıl
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Origami Öğretici Ekranı -->
+        <div id="origamiTutorial" class="hidden min-h-screen bg-surface">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-6">
+                    <button onclick="backToPreviousAdventure()" class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-bold text-gray-900" id="tutorialTitle">Origami Öğreticisi</h2>
+                    <div class="w-10 h-10"></div>
+                </div>
+
+                <div class="card-modern p-6 mb-6">
+                    <div class="text-center">
+                        <div id="origamiDiagram" class="w-64 h-64 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
+                            <!-- SVG diyagram buraya gelecek -->
+                            <span class="text-gray-500">Diyagram yükleniyor...</span>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2" id="stepTitle">Adım 1</h3>
+                        <p class="text-gray-600 mb-4" id="stepDescription">Kağıdı ikiye katlayın...</p>
+                        
+                        <div class="flex items-center justify-center space-x-4 mb-4">
+                            <button onclick="previousStep()" id="prevBtn" class="btn-secondary px-6 py-2" disabled>
+                                ← Önceki
+                            </button>
+                            <span class="text-sm text-gray-500" id="stepCounter">1/5</span>
+                            <button onclick="nextStep()" id="nextBtn" class="btn-secondary px-6 py-2">
+                                Sonraki →
+                            </button>
+                        </div>
+                        
+                        <button onclick="completeOrigami()" id="completeBtn" class="btn-primary w-full hidden">
+                            Tamamla! 🎉
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-modern p-4">
+                    <h4 class="font-bold mb-2">💡 İpucu</h4>
+                    <p class="text-sm text-gray-600" id="stepTip">Kağıdı düzgün katlayın ve kenarları hizalayın.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sesli Asistan -->
+        <div class="floating-voice">
+            <div class="relative">
+                <div class="absolute inset-0 bg-primary rounded-full pulse-ring" id="voiceRing"></div>
+                <button onclick="toggleVoice()" id="voiceBtn" class="relative w-14 h-14 gradient-primary rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 smooth-transition">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Oyun durumu
+        let gameState = {
+            playerName: '',
+            playerAge: '',
+            playerLevel: 1,
+            playerXP: 0,
+            progress: 0,
+            voiceEnabled: true,
+            currentScreen: 'welcome'
+        };
+
+        // Tüm ekranları gizle
+        function hideAllScreens() {
+            const screens = ['welcomeScreen', 'loginOptions', 'childLogin', 'educatorLogin', 'gameScreen', 'origamiIntro', 'storigamiIntro', 'forestAdventure', 'castleAdventure', 'islandAdventure', 'origamiTutorial'];
+            screens.forEach(screenId => {
+                const screen = document.getElementById(screenId);
+                if (screen) {
+                    screen.classList.add('hidden');
+                    screen.classList.remove('fade-in', 'slide-in-right');
+                }
+            });
+        }
+
+        // Origami tanıtım ekranını göster
+        function showOrigamiIntro() {
+            console.log('Origami tanıtım ekranı gösteriliyor...');
+            playClickSound();
+            
+            hideAllScreens();
+            
+            const origamiIntro = document.getElementById('origamiIntro');
+            if (origamiIntro) {
+                origamiIntro.classList.remove('hidden');
+                origamiIntro.classList.add('fade-in');
+            }
+            
+            gameState.currentScreen = 'origamiIntro';
+            
+            // Yaş grubuna göre içerik ayarla
+            setupOrigamiContent();
+            
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak(`Merhaba ${gameState.playerName}! Önce origami sanatını tanıyalım!`);
+                }, 500);
+            }
+        }
+
+        // Storigami tanıtım ekranını göster
+        function showStorigamiIntro() {
+            console.log('Storigami tanıtım ekranı gösteriliyor...');
+            playClickSound();
+            
+            hideAllScreens();
+            
+            const storigamiIntro = document.getElementById('storigamiIntro');
+            if (storigamiIntro) {
+                storigamiIntro.classList.remove('hidden');
+                storigamiIntro.classList.add('fade-in');
+            }
+            
+            gameState.currentScreen = 'storigamiIntro';
+            
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak('Şimdi Storigami dünyasını keşfedelim! Hikaye ve origami bir araya geliyor!');
+                }, 500);
+            }
+        }
+
+        // Ana oyun ekranını göster
+        function showGameScreen() {
+            console.log('Ana oyun ekranı gösteriliyor...');
+            playClickSound();
+            
+            hideAllScreens();
+            
+            const gameScreen = document.getElementById('gameScreen');
+            if (gameScreen) {
+                gameScreen.classList.remove('hidden');
+                gameScreen.classList.add('fade-in');
+            }
+            
+            gameState.currentScreen = 'game';
+            updateGameUI();
+            
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak(`Hoş geldin ${gameState.playerName}! Origami krallığında hangi maceraya çıkmak istiyorsun?`);
+                }, 500);
+            }
+        }
+
+        // Yaş grubuna göre origami içeriği ayarla
+        function setupOrigamiContent() {
+            const historyEl = document.getElementById('origamiHistory');
+            const benefitsEl = document.getElementById('origamiBenefits');
+            
+            if (!historyEl || !benefitsEl) return;
+            
+            let historyContent = '';
+            let benefitsContent = '';
+            
+            switch(gameState.playerAge) {
+                case '4-6':
+                    historyContent = `
+                        <p class="mb-3">🎌 Origami çok uzun zaman önce Japonya'da başladı!</p>
+                        <p class="mb-3">📜 İnsanlar kağıtları katlayarak güzel şekiller yapıyorlardı.</p>
+                        <p>✨ Sen de bu güzel sanatı öğreneceksin!</p>
+                    `;
+                    benefitsContent = `
+                        <div class="grid grid-cols-1 gap-3 text-sm">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🤲</span>
+                                <span>Ellerini güçlendirir</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🧠</span>
+                                <span>Beynini geliştir</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">😊</span>
+                                <span>Mutlu eder</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🎨</span>
+                                <span>Yaratıcı yapar</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case '7-9':
+                    historyContent = `
+                        <p class="mb-3">🎌 Origami, 6. yüzyılda Japonya'da başlayan bir sanattır.</p>
+                        <p class="mb-3">📜 "Ori" katlama, "gami" ise kağıt anlamına gelir.</p>
+                        <p class="mb-3">🏛️ Önce tapınaklarda kullanılıyor, sonra halk arasında yayılıyordu.</p>
+                        <p>✨ Bugün tüm dünyada sevilen bir hobi haline geldi!</p>
+                    `;
+                    benefitsContent = `
+                        <div class="grid grid-cols-1 gap-3 text-sm">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🤲</span>
+                                <span>El-göz koordinasyonunu geliştirir</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🧮</span>
+                                <span>Matematik becerilerini artırır</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                <span>Odaklanma yeteneğini güçlendirir</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🌟</span>
+                                <span>Yaratıcılığı ve hayal gücünü geliştirir</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case '10-12':
+                    historyContent = `
+                        <p class="mb-3">🎌 Origami, 6. yüzyılda Çin'den Japonya'ya gelen kağıt sanatıdır.</p>
+                        <p class="mb-3">📜 Heian döneminde (794-1185) saray kültürünün bir parçası oldu.</p>
+                        <p class="mb-3">🏛️ Edo döneminde (1603-1868) halk arasında yaygınlaştı.</p>
+                        <p class="mb-3">🌍 20. yüzyılda Akira Yoshizawa gibi ustalar modern origamiyi geliştirdi.</p>
+                        <p>✨ Bugün matematik, mühendislik ve sanatta kullanılıyor!</p>
+                    `;
+                    benefitsContent = `
+                        <div class="grid grid-cols-1 gap-3 text-sm">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🧠</span>
+                                <span>Uzamsal zeka ve geometrik düşünceyi geliştirir</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                <span>Problem çözme becerilerini artırır</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🧘</span>
+                                <span>Stres azaltır ve meditasyon etkisi yapar</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">🔬</span>
+                                <span>STEM alanlarında pratik uygulama sağlar</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            historyEl.innerHTML = historyContent;
+            benefitsEl.innerHTML = benefitsContent;
+        }
+
+        // Ses sentezi
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        
+        // Ses efektleri
+        let audioContext = null;
+        
+        function initAudioContext() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (error) {
+                    console.log('Audio context oluşturulamadı:', error);
+                    return null;
+                }
+            }
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            return audioContext;
+        }
+        
+        function playClickSound() {
+            try {
+                const ctx = initAudioContext();
+                if (!ctx) return;
+                
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.1);
+            } catch (error) {
+                console.log('Ses efekti çalınamadı:', error);
+            }
+        }
+        
+        function playHoverSound() {
+            try {
+                const ctx = initAudioContext();
+                if (!ctx) return;
+                
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.setValueAtTime(600, ctx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(700, ctx.currentTime + 0.05);
+                
+                gainNode.gain.setValueAtTime(0.05, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+                
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.05);
+            } catch (error) {
+                console.log('Hover ses efekti çalınamadı:', error);
+            }
+        }
+
+        // Karşılama ekranından giriş seçeneklerine
+        function showLoginOptions() {
+            console.log('Giriş seçenekleri gösteriliyor...');
+            playClickSound(); // Click sesi ekle
+            
+            // Tüm ekranları gizle
+            hideAllScreens();
+            
+            // Login options ekranını göster
+            const loginOptions = document.getElementById('loginOptions');
+            if (loginOptions) {
+                loginOptions.classList.remove('hidden');
+                loginOptions.classList.add('fade-in');
+                console.log('Login options gösterildi');
+            }
+            
+            gameState.currentScreen = 'loginOptions';
+            
+            // Sesli karşılama
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak("Kim oynuyor? Çocuk oyuncu veya eğitmen seçin.");
+                }, 300);
+            }
+        }
+
+        // Ana karşılama ekranına dön
+        function goToWelcome() {
+            console.log('Ana ekrana dönülüyor...');
+            playClickSound(); // Click sesi ekle
+            
+            // Tüm ekranları gizle
+            hideAllScreens();
+            
+            // Karşılama ekranını göster
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            if (welcomeScreen) {
+                welcomeScreen.classList.remove('hidden');
+                welcomeScreen.classList.add('fade-in');
+                console.log('Welcome screen gösterildi');
+            }
+            
+            gameState.currentScreen = 'welcome';
+            
+            // Sesli karşılama
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak("Storigami ana ekranına hoş geldin!");
+                }, 300);
+            }
+        }
+
+        // Çocuk giriş formunu göster
+        function showChildLogin() {
+            console.log('Çocuk giriş ekranı açılıyor...');
+            playClickSound(); // Click sesi ekle
+            
+            // Tüm ekranları gizle
+            hideAllScreens();
+            
+            // Çocuk giriş ekranını göster
+            const childLogin = document.getElementById('childLogin');
+            if (childLogin) {
+                childLogin.classList.remove('hidden');
+                childLogin.classList.add('slide-in-right');
+                console.log('Child login gösterildi');
+            }
+            
+            gameState.currentScreen = 'childLogin';
+            gameState.playerAge = ''; // Yaş seçimini sıfırla
+            
+            // Formu sıfırla
+            const nameInput = document.getElementById('childName');
+            if (nameInput) {
+                nameInput.value = '';
+            }
+            
+            // Yaş butonlarını sıfırla
+            document.querySelectorAll('.age-btn').forEach(btn => {
+                btn.classList.remove('bg-white/50', 'ring-2', 'ring-white');
+                btn.classList.add('bg-white/20');
+            });
+            
+            // Event listener'ları yeniden kur
+            setTimeout(() => {
+                console.log('Event listener kurulumu başlatılıyor...');
+                setupEventListeners();
+            }, 200);
+            
+            // Sesli karşılama
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak("Merhaba küçük kahraman! Adını ve yaşını öğrenebilir miyim?");
+                }, 500);
+            }
+        }
+
+        // Eğitmen giriş formunu göster
+        function showEducatorLogin() {
+            console.log('Eğitmen giriş ekranı açılıyor...');
+            playClickSound(); // Click sesi ekle
+            
+            // Tüm ekranları gizle
+            hideAllScreens();
+            
+            // Eğitmen giriş ekranını göster
+            const educatorLogin = document.getElementById('educatorLogin');
+            if (educatorLogin) {
+                educatorLogin.classList.remove('hidden');
+                educatorLogin.classList.add('slide-in-right');
+                console.log('Educator login gösterildi');
+            }
+            
+            gameState.currentScreen = 'educatorLogin';
+            
+            // Formu sıfırla
+            const usernameInput = document.getElementById('educatorUsername');
+            const passwordInput = document.getElementById('educatorPassword');
+            if (usernameInput) usernameInput.value = '';
+            if (passwordInput) passwordInput.value = '';
+            
+            // Sesli karşılama
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak("Eğitmen girişi. Lütfen kullanıcı adı ve şifrenizi girin.");
+                }, 500);
+            }
+        }
+
+        // Giriş seçeneklerine geri dön
+        function goBackToLoginOptions() {
+            console.log('Giriş seçeneklerine dönülüyor...');
+            playClickSound(); // Click sesi ekle
+            
+            // Tüm ekranları gizle
+            hideAllScreens();
+            
+            // Login options ekranını göster
+            const loginOptions = document.getElementById('loginOptions');
+            if (loginOptions) {
+                loginOptions.classList.remove('hidden');
+                loginOptions.classList.add('fade-in');
+                console.log('Login options gösterildi');
+            }
+            
+            gameState.currentScreen = 'loginOptions';
+            
+            // Sesli geri bildirim
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak("Giriş seçeneklerine döndünüz. Kim oynuyor?");
+                }, 300);
+            }
+        }
+
+        // Çocuk yaş seçimi
+        function selectChildAge(age, element) {
+            console.log('Yaş seçildi:', age);
+            
+            try {
+                playClickSound();
+            } catch (e) {
+                console.log('Ses çalınamadı:', e);
+            }
+            
+            gameState.playerAge = age;
+            
+            // Tüm yaş butonlarını sıfırla
+            document.querySelectorAll('.age-btn').forEach(btn => {
+                btn.classList.remove('bg-white/50', 'ring-2', 'ring-white');
+                btn.classList.add('bg-white/20');
+            });
+            
+            // Seçili butonu vurgula - element parametresini kullan
+            if (element) {
+                element.classList.remove('bg-white/20');
+                element.classList.add('bg-white/50', 'ring-2', 'ring-white');
+                console.log('Yaş butonu vurgulandı');
+            }
+            
+            // Başla butonunu aktif et
+            checkChildLoginForm();
+            
+            try {
+                if (gameState.voiceEnabled) {
+                    speak(`${age} yaş grubu seçildi! Harika seçim!`);
+                }
+            } catch (e) {
+                console.log('Ses sentezi hatası:', e);
+            }
+        }
+
+        // Çocuk giriş formu kontrolü
+        function checkChildLoginForm() {
+            try {
+                const nameInput = document.getElementById('childName');
+                const startBtn = document.getElementById('startAdventureBtn');
+                
+                if (!nameInput || !startBtn) {
+                    console.log('Form elementleri bulunamadı');
+                    return;
+                }
+                
+                const name = nameInput.value ? nameInput.value.trim() : '';
+                console.log('İsim:', name, 'Yaş:', gameState.playerAge);
+                
+                if (name.length >= 2 && gameState.playerAge) {
+                    startBtn.disabled = false;
+                    startBtn.classList.remove('bg-white/30', 'opacity-50', 'cursor-not-allowed');
+                    startBtn.classList.add('bg-white/50', 'hover:bg-white/60', 'cursor-pointer');
+                    startBtn.style.cursor = 'pointer';
+                    console.log('Buton aktif edildi');
+                } else {
+                    startBtn.disabled = true;
+                    startBtn.classList.remove('bg-white/50', 'hover:bg-white/60', 'cursor-pointer');
+                    startBtn.classList.add('bg-white/30', 'opacity-50', 'cursor-not-allowed');
+                    startBtn.style.cursor = 'not-allowed';
+                    console.log('Buton deaktif');
+                }
+            } catch (error) {
+                console.log('Form kontrol hatası:', error);
+            }
+        }
+
+        // İsim input dinleyicisi
+        function setupEventListeners() {
+            console.log('Event listener\'lar kuruluyor...');
+            
+            // İsim input için event listener
+            setTimeout(() => {
+                const nameInput = document.getElementById('childName');
+                if (nameInput) {
+                    console.log('İsim input bulundu, event listener ekleniyor');
+                    
+                    // Yeni listener'ları ekle
+                    nameInput.addEventListener('input', function() {
+                        console.log('Input değişti:', this.value);
+                        checkChildLoginForm();
+                    });
+                    
+                    // İlk kontrol
+                    checkChildLoginForm();
+                } else {
+                    console.log('İsim input bulunamadı');
+                }
+            }, 100);
+            
+            // Tüm butonlara ses efektleri ekle
+            document.querySelectorAll('button').forEach(btn => {
+                if (!btn.disabled) {
+                    btn.style.cursor = 'pointer';
+                }
+                
+                // Hover ses efekti
+                btn.addEventListener('mouseenter', function() {
+                    try {
+                        if (!this.disabled && gameState.voiceEnabled) {
+                            playHoverSound();
+                        }
+                    } catch (e) {
+                        console.log('Hover ses hatası:', e);
+                    }
+                });
+                
+                // Click ses efekti
+                btn.addEventListener('click', function() {
+                    try {
+                        if (!this.disabled && gameState.voiceEnabled) {
+                            playClickSound();
+                        }
+                    } catch (e) {
+                        console.log('Click ses hatası:', e);
+                    }
+                });
+            });
+        }
+
+        // Çocuk macerasını başlat
+        function startChildAdventure() {
+            console.log('Macera başlatılıyor...');
+            playClickSound(); // Click sesi çal
+            
+            const nameInput = document.getElementById('childName');
+            if (!nameInput) {
+                console.log('İsim input bulunamadı');
+                return false;
+            }
+            
+            const name = nameInput.value.trim();
+            console.log('İsim:', name, 'Yaş:', gameState.playerAge);
+            
+            if (!name || name.length < 2) {
+                alert('Lütfen en az 2 harfli bir isim yaz!');
+                return false;
+            }
+            
+            if (!gameState.playerAge) {
+                alert('Lütfen yaş grubunu seç!');
+                return false;
+            }
+            
+            console.log('Form validasyonu geçti, origami tanıtımına geçiliyor...');
+            gameState.playerName = name;
+            
+            // Oyun ekranını hazırla
+            const playerNameEl = document.getElementById('playerName');
+            const playerInitialEl = document.getElementById('playerInitial');
+            
+            if (playerNameEl) {
+                playerNameEl.textContent = name;
+                console.log('Oyuncu ismi güncellendi');
+            }
+            if (playerInitialEl) {
+                playerInitialEl.textContent = name.charAt(0).toUpperCase();
+                console.log('Oyuncu baş harfi güncellendi');
+            }
+            
+            // Origami tanıtım ekranına geç
+            showOrigamiIntro();
+            
+            console.log('Origami tanıtımı başlatıldı!');
+            return true;
+        }
+
+        // Şifre görünürlüğü
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('educatorPassword');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.innerHTML = `
+                    <path d="M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.2 16.38,18.66L16.81,19.08L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.26,4.75 8,5.2L10.17,7.35C10.76,7.13 11.37,7 12,7Z"/>
+                `;
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.innerHTML = `
+                    <path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/>
+                `;
+            }
+        }
+
+        // Şifremi unuttum
+        function showForgotPassword() {
+            playClickSound();
+            alert('Şifre sıfırlama özelliği geliştirme aşamasında!\n\nDemo hesabı:\nE-posta: demo@storigami.com\nŞifre: demo123');
+        }
+
+        // Yeni hesap oluştur
+        function showRegisterForm() {
+            playClickSound();
+            alert('Yeni hesap oluşturma özelliği geliştirme aşamasında!\n\nŞu an demo hesabı ile giriş yapabilirsiniz:\nE-posta: demo@storigami.com\nŞifre: demo123');
+        }
+
+        // Eğitmen girişi
+        function educatorLogin() {
+            playClickSound();
+            
+            const email = document.getElementById('educatorEmail').value.trim();
+            const password = document.getElementById('educatorPassword').value;
+            const school = document.getElementById('educatorSchool').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            // Form validasyonu
+            if (!email) {
+                alert('Lütfen e-posta adresinizi girin!');
+                return;
+            }
+            
+            if (!password) {
+                alert('Lütfen şifrenizi girin!');
+                return;
+            }
+            
+            if (!school) {
+                alert('Lütfen okulunuzu seçin!');
+                return;
+            }
+            
+            // Demo hesap doğrulama
+            if (email === 'demo@storigami.com' && password === 'demo123' && school === 'demo') {
+                // Başarılı giriş
+                if (rememberMe) {
+                    localStorage.setItem('educatorLogin', JSON.stringify({
+                        email: email,
+                        school: school,
+                        loginTime: new Date().toISOString()
+                    }));
+                }
+                
+                showEducatorDashboard();
+                
+                if (gameState.voiceEnabled) {
+                    speak('Eğitmen paneline hoş geldiniz! Öğrenci takip sistemi açılıyor.');
+                }
+            } else {
+                // Hatalı giriş
+                alert('Hatalı giriş bilgileri!\n\nDemo hesabı:\nE-posta: demo@storigami.com\nŞifre: demo123\nOkul: Demo Okulu');
+                
+                if (gameState.voiceEnabled) {
+                    speak('Giriş bilgileri hatalı. Lütfen tekrar deneyin.');
+                }
+            }
+        }
+
+        // Eğitmen paneli
+        function showEducatorDashboard() {
+            hideAllScreens();
+            
+            // Eğitmen paneli HTML'i oluştur
+            const dashboardHTML = `
+                <div class="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700">
+                    <div class="p-6">
+                        <!-- Header -->
+                        <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-6 mb-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h1 class="text-2xl font-bold text-white">Eğitmen Paneli</h1>
+                                        <p class="text-white/70">Demo Okulu - Storigami Sistemi</p>
+                                    </div>
+                                </div>
+                                <button onclick="logoutEducator()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl transition-colors">
+                                    Çıkış
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- İstatistikler -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-blue-500/30 rounded-xl flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-blue-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-white">24</h3>
+                                        <p class="text-white/70">Aktif Öğrenci</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-green-500/30 rounded-xl flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-green-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-white">156</h3>
+                                        <p class="text-white/70">Tamamlanan Origami</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-purple-500/30 rounded-xl flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-purple-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-white">89</h3>
+                                        <p class="text-white/70">Oluşturulan Hikaye</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Öğrenci Listesi -->
+                        <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-6">
+                            <h2 class="text-xl font-bold text-white mb-4">Öğrenci Takibi</h2>
+                            <div class="space-y-3">
+                                <div class="bg-white/10 rounded-2xl p-4 flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-white font-bold">A</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-white">Ahmet Yılmaz</h4>
+                                            <p class="text-white/70 text-sm">Seviye 3 • 450 XP</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-green-300 font-bold">12 Origami</p>
+                                        <p class="text-white/70 text-sm">Son: 2 saat önce</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white/10 rounded-2xl p-4 flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-white font-bold">E</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-white">Elif Kaya</h4>
+                                            <p class="text-white/70 text-sm">Seviye 2 • 280 XP</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-green-300 font-bold">8 Origami</p>
+                                        <p class="text-white/70 text-sm">Son: 1 gün önce</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white/10 rounded-2xl p-4 flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-white font-bold">M</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-white">Mehmet Demir</h4>
+                                            <p class="text-white/70 text-sm">Seviye 4 • 620 XP</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-green-300 font-bold">18 Origami</p>
+                                        <p class="text-white/70 text-sm">Son: 30 dk önce</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-6">
+                                <button class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl transition-colors">
+                                    Tüm Öğrencileri Görüntüle
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Dashboard'u göster
+            document.body.innerHTML = dashboardHTML;
+            gameState.currentScreen = 'educatorDashboard';
+        }
+
+        // Eğitmen çıkışı
+        function logoutEducator() {
+            playClickSound();
+            localStorage.removeItem('educatorLogin');
+            location.reload(); // Sayfayı yenile
+        }
+
+        // Macera başlat
+        function startAdventure(type) {
+            console.log('Macera başlatılıyor:', type);
+            playClickSound();
+            
+            hideAllScreens();
+            
+            const adventures = {
+                'forest': {
+                    screen: 'forestAdventure',
+                    title: 'Kağıt Ormanı Macerası',
+                    description: 'Origami hayvanlarıyla tanış ve onların hikayelerini keşfet!',
+                    xp: 50
+                },
+                'castle': {
+                    screen: 'castleAdventure',
+                    title: 'Hikaye Kalesi',
+                    description: 'AI ile birlikte büyülü hikayeler oluştur!',
+                    xp: 100
+                },
+                'island': {
+                    screen: 'islandAdventure',
+                    title: 'Yaratıcılık Adası',
+                    description: 'Eğlenceli oyunlar ve yaratıcı aktiviteler!',
+                    xp: 150
+                }
+            };
+            
+            const adventure = adventures[type];
+            if (!adventure) return;
+            
+            const adventureScreen = document.getElementById(adventure.screen);
+            if (adventureScreen) {
+                adventureScreen.classList.remove('hidden');
+                adventureScreen.classList.add('fade-in');
+            }
+            
+            gameState.currentScreen = adventure.screen;
+            gameState.currentAdventure = type;
+            
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak(`${adventure.title} macerasına hoş geldin! ${adventure.description}`);
+                }, 500);
+            }
+        }
+
+        // Ana oyuna geri dön
+        function backToGame() {
+            console.log('Ana oyuna dönülüyor...');
+            playClickSound();
+            showGameScreen();
+        }
+
+        // Günlük görev tamamla
+        function completeTask(taskId, xp) {
+            console.log('Görev tamamlanıyor:', taskId);
+            playClickSound();
+            
+            const taskElement = document.getElementById(taskId);
+            if (taskElement) {
+                taskElement.style.opacity = '0.5';
+                const button = taskElement.querySelector('button');
+                if (button) {
+                    button.textContent = 'Tamamlandı!';
+                    button.disabled = true;
+                    button.classList.remove('bg-green-100', 'text-green-800', 'hover:bg-green-200');
+                    button.classList.add('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
+                }
+            }
+            
+            gainXP(xp);
+            
+            if (gameState.voiceEnabled) {
+                speak(`Tebrikler! Görev tamamlandı ve ${xp} deneyim puanı kazandın!`);
+            }
+        }
+
+        // Origami öğreticisi başlat
+        let currentTutorial = null;
+        let currentStep = 0;
+        
+        const origamiTutorials = {
+            'butterfly': {
+                title: '🦋 Kelebek Yapımı',
+                steps: [
+                    {
+                        title: 'Adım 1: Başlangıç',
+                        description: 'Kare kağıdı çapraz olarak ikiye katlayın',
+                        tip: 'Kenarları tam olarak hizalayın'
+                    },
+                    {
+                        title: 'Adım 2: Üçgen',
+                        description: 'Açın ve diğer çaprazdan da katlayın',
+                        tip: 'Güçlü katlamalar yapın'
+                    },
+                    {
+                        title: 'Adım 3: Kare Katlama',
+                        description: 'Kağıdı kare şeklinde katlayın',
+                        tip: 'Yavaş ve dikkatli olun'
+                    },
+                    {
+                        title: 'Adım 4: Kanat Şekli',
+                        description: 'Üst katmanları yukarı katlayın',
+                        tip: 'Simetrik olmasına dikkat edin'
+                    },
+                    {
+                        title: 'Adım 5: Son Dokunuş',
+                        description: 'Ortadan katlayıp kelebeği şekillendirin',
+                        tip: 'Kanatları hafifçe açın'
+                    }
+                ]
+            },
+            'frog': {
+                title: '🐸 Zıplayan Kurbağa',
+                steps: [
+                    {
+                        title: 'Adım 1: Dikdörtgen',
+                        description: 'Kare kağıdı dikdörtgen şeklinde katlayın',
+                        tip: 'Düz bir yüzey kullanın'
+                    },
+                    {
+                        title: 'Adım 2: Üçgen Köşeler',
+                        description: 'Köşeleri üçgen şeklinde katlayın',
+                        tip: 'Her iki tarafı da eşit yapın'
+                    },
+                    {
+                        title: 'Adım 3: Kurbağa Gövdesi',
+                        description: 'Alt kısmı yukarı doğru katlayın',
+                        tip: 'Güçlü bir katlama yapın'
+                    },
+                    {
+                        title: 'Adım 4: Bacaklar',
+                        description: 'Yan kısımları içe doğru katlayın',
+                        tip: 'Bacak şeklini oluşturun'
+                    },
+                    {
+                        title: 'Adım 5: Zıplama Mekanizması',
+                        description: 'Arka kısmı katlayıp zıplama özelliği verin',
+                        tip: 'Hafifçe bastırınca zıplamalı'
+                    }
+                ]
+            },
+            'dove': {
+                title: '🐦 Barış Güvercini',
+                steps: [
+                    {
+                        title: 'Adım 1: Çapraz Katlama',
+                        description: 'Kağıdı çapraz olarak katlayın',
+                        tip: 'Temiz katlamalar yapın'
+                    },
+                    {
+                        title: 'Adım 2: Kuş Tabanı',
+                        description: 'Temel kuş şeklini oluşturun',
+                        tip: 'Origami kuş tabanı tekniği'
+                    },
+                    {
+                        title: 'Adım 3: Boyun ve Kuyruk',
+                        description: 'Boyun ve kuyruk kısımlarını şekillendirin',
+                        tip: 'Orantılı olmasına dikkat edin'
+                    },
+                    {
+                        title: 'Adım 4: Kanatlar',
+                        description: 'Kanatları aşağı doğru katlayın',
+                        tip: 'Simetrik kanatlar yapın'
+                    },
+                    {
+                        title: 'Adım 5: Son Şekil',
+                        description: 'Başı şekillendirip güvercini tamamlayın',
+                        tip: 'Nazikçe şekillendirin'
+                    }
+                ]
+            }
+        };
+
+        function startOrigamiTutorial(type) {
+            console.log('Origami öğreticisi başlatılıyor:', type);
+            playClickSound();
+            
+            currentTutorial = origamiTutorials[type];
+            currentStep = 0;
+            
+            if (!currentTutorial) return;
+            
+            hideAllScreens();
+            
+            const tutorialScreen = document.getElementById('origamiTutorial');
+            if (tutorialScreen) {
+                tutorialScreen.classList.remove('hidden');
+                tutorialScreen.classList.add('fade-in');
+            }
+            
+            gameState.currentScreen = 'origamiTutorial';
+            updateTutorialStep();
+            
+            if (gameState.voiceEnabled) {
+                setTimeout(() => {
+                    speak(`${currentTutorial.title} öğreticisine hoş geldin! Adım adım öğrenelim.`);
+                }, 500);
+            }
+        }
+
+        function updateTutorialStep() {
+            if (!currentTutorial) return;
+            
+            const step = currentTutorial.steps[currentStep];
+            
+            document.getElementById('tutorialTitle').textContent = currentTutorial.title;
+            document.getElementById('stepTitle').textContent = step.title;
+            document.getElementById('stepDescription').textContent = step.description;
+            document.getElementById('stepTip').textContent = step.tip;
+            document.getElementById('stepCounter').textContent = `${currentStep + 1}/${currentTutorial.steps.length}`;
+            
+            // Buton durumları
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const completeBtn = document.getElementById('completeBtn');
+            
+            prevBtn.disabled = currentStep === 0;
+            
+            if (currentStep === currentTutorial.steps.length - 1) {
+                nextBtn.classList.add('hidden');
+                completeBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                completeBtn.classList.add('hidden');
+            }
+            
+            // Basit diyagram simülasyonu
+            const diagram = document.getElementById('origamiDiagram');
+            diagram.innerHTML = `
+                <div class="text-6xl">${currentTutorial.title.split(' ')[0]}</div>
+                <div class="text-sm text-gray-500 mt-2">Adım ${currentStep + 1}</div>
+            `;
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateTutorialStep();
+                playClickSound();
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < currentTutorial.steps.length - 1) {
+                currentStep++;
+                updateTutorialStep();
+                playClickSound();
+            }
+        }
+
+        function completeOrigami() {
+            console.log('Origami tamamlandı!');
+            playClickSound();
+            
+            gainXP(75);
+            
+            if (gameState.voiceEnabled) {
+                speak(`Tebrikler! ${currentTutorial.title} başarıyla tamamladın! 75 deneyim puanı kazandın!`);
+            }
+            
+            setTimeout(() => {
+                backToPreviousAdventure();
+            }, 2000);
+        }
+
+        function backToPreviousAdventure() {
+            console.log('Önceki maceraya dönülüyor...');
+            playClickSound();
+            
+            if (gameState.currentAdventure) {
+                startAdventure(gameState.currentAdventure);
+            } else {
+                backToGame();
+            }
+        }
+
+        // Hikaye Kalesi fonksiyonları
+        function startStoryCreator() {
+            playClickSound();
+            gainXP(100);
+            if (gameState.voiceEnabled) {
+                speak('Hikaye oluşturucu açılıyor! AI ile birlikte harika hikayeler yazacağız!');
+            }
+            alert('Hikaye oluşturucu geliştirme aşamasında! Yakında hazır olacak.');
+        }
+
+        function showCharacterGallery() {
+            playClickSound();
+            gainXP(50);
+            if (gameState.voiceEnabled) {
+                speak('Karakter galerisine hoş geldin! Yaptığın origamileri burada görebilirsin.');
+            }
+            alert('Karakter galerisi geliştirme aşamasında! Yakında hazır olacak.');
+        }
+
+        function startTheater() {
+            playClickSound();
+            gainXP(125);
+            if (gameState.voiceEnabled) {
+                speak('Hikaye tiyatrosu başlıyor! Karakterlerinle mini oyunlar oynayacağız!');
+            }
+            alert('Hikaye tiyatrosu geliştirme aşamasında! Yakında hazır olacak.');
+        }
+
+        // Yaratıcılık Adası fonksiyonları
+        function startColorWorkshop() {
+            playClickSound();
+            gainXP(75);
+            if (gameState.voiceEnabled) {
+                speak('Renk atölyesine hoş geldin! Origamilerini renklendirebilirsin!');
+            }
+            alert('Renk atölyesi geliştirme aşamasında! Yakında hazır olacak.');
+        }
+
+        function startOrigamiPuzzle() {
+            playClickSound();
+            gainXP(100);
+            if (gameState.voiceEnabled) {
+                speak('Origami bulmacası başlıyor! Parçaları birleştirip şekli tamamla!');
+            }
+            alert('Origami bulmacası geliştirme aşamasında! Yakında hazır olacak.');
+        }
+
+        function startCreativityContest() {
+            playClickSound();
+            gainXP(150);
+            if (gameState.voiceEnabled) {
+                speak('Yaratıcılık yarışmasına hoş geldin! Kendi tasarımını oluştur!');
+            }
+            alert('Yaratıcılık yarışması geliştirme aşamasında! Yakında hazır olacak.');
+        }
+
+        // XP kazanımı
+        function gainXP(amount) {
+            gameState.playerXP += amount;
+            gameState.progress = Math.min(gameState.progress + 1, 10);
+            
+            // Seviye atlama kontrolü
+            const newLevel = Math.floor(gameState.playerXP / 200) + 1;
+            if (newLevel > gameState.playerLevel) {
+                gameState.playerLevel = newLevel;
+                if (gameState.voiceEnabled) {
+                    speak(`Tebrikler! Seviye ${newLevel} oldun!`);
+                }
+            }
+            
+            updateGameUI();
+            
+            if (gameState.voiceEnabled) {
+                speak(`${amount} deneyim puanı kazandın!`);
+            }
+        }
+
+        // Oyun UI güncelleme
+        function updateGameUI() {
+            document.getElementById('playerLevel').textContent = `Seviye ${gameState.playerLevel}`;
+            document.getElementById('playerXP').textContent = `${gameState.playerXP} XP`;
+            document.getElementById('progressText').textContent = `${gameState.progress}/10`;
+            document.getElementById('progressFill').style.width = `${(gameState.progress / 10) * 100}%`;
+        }
+
+        // Sesli asistan
+        function speak(text) {
+            if (!gameState.voiceEnabled) return;
+            
+            try {
+                if (!window.speechSynthesis) {
+                    console.log('Speech synthesis desteklenmiyor');
+                    return;
+                }
+                
+                // Önceki konuşmayı durdur
+                window.speechSynthesis.cancel();
+                
+                currentUtterance = new SpeechSynthesisUtterance(text);
+                currentUtterance.lang = 'tr-TR';
+                currentUtterance.rate = 0.9;
+                currentUtterance.pitch = 1.1;
+                currentUtterance.volume = 0.8;
+                
+                // Konuşma animasyonu
+                const voiceBtn = document.getElementById('voiceBtn');
+                const voiceRing = document.getElementById('voiceRing');
+                
+                if (voiceBtn && voiceRing) {
+                    currentUtterance.onstart = () => {
+                        voiceBtn.classList.add('speaking');
+                        voiceRing.style.display = 'block';
+                    };
+                    
+                    currentUtterance.onend = () => {
+                        voiceBtn.classList.remove('speaking');
+                        voiceRing.style.display = 'none';
+                    };
+                    
+                    currentUtterance.onerror = (event) => {
+                        console.log('Speech synthesis hatası:', event.error);
+                        voiceBtn.classList.remove('speaking');
+                        voiceRing.style.display = 'none';
+                    };
+                }
+                
+                // Kısa gecikme ile konuş
+                setTimeout(() => {
+                    window.speechSynthesis.speak(currentUtterance);
+                }, 100);
+                
+            } catch (error) {
+                console.log('Ses sentezi hatası:', error);
+            }
+        }
+
+        // Ses açma/kapama
+        function toggleVoice() {
+            gameState.voiceEnabled = !gameState.voiceEnabled;
+            const voiceBtn = document.getElementById('voiceBtn');
+            
+            if (gameState.voiceEnabled) {
+                voiceBtn.innerHTML = `
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"/>
+                    </svg>
+                `;
+                speak("Sesli asistan açıldı!");
+            } else {
+                window.speechSynthesis.cancel();
+                voiceBtn.innerHTML = `
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19M16.5,12C16.5,12 17.5,10.5 17.5,10.5L19,12L17.5,13.5C17.5,13.5 16.5,12 16.5,12Z"/>
+                    </svg>
+                `;
+            }
+        }
+
+        // Ayarlar
+        function showSettings() {
+            alert('Ayarlar menüsü geliştirme aşamasında!');
+        }
+
+        // Otomatik kart okuma
+        function readCard(element) {
+            if (!gameState.voiceEnabled) return;
+            
+            const title = element.querySelector('h3').textContent;
+            const description = element.querySelector('p').textContent;
+            speak(`${title}. ${description}`);
+        }
+
+        // Kart hover olayları
+        function setupCardListeners() {
+            const adventureCards = document.querySelectorAll('[onclick^="startAdventure"]');
+            adventureCards.forEach(card => {
+                card.addEventListener('mouseenter', () => readCard(card));
+            });
+        }
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Sayfa yüklendi, başlatılıyor...');
+            
+            // Event listener'ları kur
+            try {
+                setupEventListeners();
+            } catch (e) {
+                console.log('Event listener kurulum hatası:', e);
+            }
+            
+            // Tüm butonlara cursor pointer ekle
+            document.querySelectorAll('button').forEach(btn => {
+                btn.style.cursor = 'pointer';
+            });
+            
+            // Audio context'i kullanıcı etkileşimi ile başlat
+            document.addEventListener('click', function initAudio() {
+                try {
+                    initAudioContext();
+                    document.removeEventListener('click', initAudio);
+                } catch (e) {
+                    console.log('Audio başlatma hatası:', e);
+                }
+            }, { once: true });
+            
+            // Karşılama animasyonu
+            setTimeout(() => {
+                try {
+                    if (gameState.voiceEnabled) {
+                        speak("Storigami Origami Macera Dünyasına hoş geldin!");
+                    }
+                } catch (e) {
+                    console.log('Karşılama ses hatası:', e);
+                }
+            }, 1500);
+            
+            // Mobil dokunmatik desteği
+            document.addEventListener('touchstart', function() {}, {passive: true});
+            
+            console.log('Başlatma tamamlandı');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96602bca76a2b5df',t:'MTc1MzY2MTYxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
